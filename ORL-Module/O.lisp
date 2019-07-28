@@ -16,6 +16,7 @@
     )
 
     (-P- OPERATOR_1_LEG_AREA_IN_L_2)
+    (!!(-P- OPERATOR_1_arm_AREA_IN_L_6))
     (ALWF(||(-P- OPERATOR_1_HEAD_AREA_IN_L_5)(-P- OPERATOR_1_HEAD_AREA_IN_L_8)))
 
  )))

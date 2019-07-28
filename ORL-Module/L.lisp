@@ -145,7 +145,6 @@
       (&&
         (next (|| (-P- RELATIVEVELOCITY_1_1_none) (-P- RELATIVEVELOCITY_1_1_low) (-P- RELATIVEVELOCITY_1_1_mid)))
         (|| (-P- roStill) (-P- OPERATORSTILL_1))
-       ; (!!(&& (-P- roStill) (-P- OPERATORSTILL_1)))
     ))
 
     (<->

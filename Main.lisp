@@ -1,6 +1,6 @@
 (asdf:operate 'asdf:load-op 'sbvzot)
 (use-package :trio-utils)
-(defvar TSPACE 25)
+(defvar TSPACE 15)
 (load "TaskLib/T.lisp")
 
 (defconstant Hazards
@@ -18,10 +18,11 @@
   Config1
   (reset_actions action_indexes  1)
   (init_hazards hazard_indexes)
-  (-P- EndEff_1_IN_L_6)
+  (-P- EndEff_1_IN_L_3)
   (AlwF(!!(-P- EndEff_1_IN_L_9)))
   (-P- LINK1_1_IN_L_6)
   (-P- LINK2_1_IN_L_6)
+  (SomF (-P- ACTION_STATE_DN_8_1))
  ))
 
 (defconstant *sys*

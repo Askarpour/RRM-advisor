@@ -1,9 +1,10 @@
 ;operator moves
-(defun op_moves (actionid Traceid source dest opId)
+(defun op_moves (actionid Traceid dest opId)
    (alwf (&&
     (-P- Action_Doer_op actionid Traceid)
-    (->(-P- Action_Pre actionid Traceid) (&& (-P- opEnters)(-P- Action_State_dn (- actionid 1) Traceid)(inside `operator_1_head_area source)))
-    (->(-P- Action_Post actionid Traceid) (inside `operator_1_arm_area dest)))))
+    (->(-P- Action_Pre actionid Traceid) (-P- Action_State_dn (- actionid 1) Traceid))
+    (->(-P- Action_Post actionid Traceid) (inside `operator_1_arm_area dest))
+    )))
 
 ;op holding the wp in dest
 (defun op_hold(actionid Traceid masteraction preaction dest opId)
@@ -26,13 +27,9 @@
 (defun insertp(actionid Traceid bin opId)
   (alwf (&&
    (-P- Action_Doer_op actionid Traceid)
-
    (->(-P- Action_Pre actionid Traceid) (&&(-P- Action_State_dn (- actionid 1) Traceid)(inside `OPERATOR_1_ARM_AREA bin)))
-
    (->(-P- Action_Pre_L actionid Traceid) (inside `OPERATOR_1_ARM_AREA bin))
-
    (->(-P- Action_Post actionid Traceid) (inside `OPERATOR_1_ARM_AREA bin))
-
    (->(-P- Action_Post_L actionid Traceid) (inside `OPERATOR_1_ARM_AREA bin))
    (->(|| (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid)) (inside `OPERATOR_1_ARM_AREA bin))
 )))
@@ -59,10 +56,10 @@
 )))
 
 ;robot-ee is moving
-(defun move(actionid Traceid source dest opId)
+(defun move(actionid Traceid source dest opId preaction)
  (alwf (&&
    (-P- Action_Doer_ro actionid Traceid)
-   (->(-P- Action_Pre actionid Traceid) (&&(-P- Action_State_dn (- actionid 1) Traceid)))
+   (->(-P- Action_Pre actionid Traceid) (&&(-P- Action_State_dn preaction Traceid)))
    (->(-P- Action_Post actionid Traceid) (inside `EndEff_1 dest))
    (->(-P- Action_Post_L actionid Traceid) (inside `EndEff_1 dest))
    )))
@@ -78,13 +75,21 @@
 
 ; ro picks a wp
 (defun pick(actionid Traceid dest opId)
- (eval `(alwf (&&
+ `(alwf (&&
    (-P- Action_Doer_ro actionid Traceid)
-   (->(-P- Action_Pre actionid Traceid) (&& (||   (In_Adj_with_L `EndEff_1 dest) (inside `EndEff_1 dest)) 
-    (||   (In_Adj_with_L `Base_1 dest) (inside `Base_1 dest))(-P- Action_State_dn (- actionid 1) Traceid)))
+   (->(-P- Action_Pre actionid Traceid) (&& (||   (In_Adj_with_L `EndEff_1 dest) (inside `EndEff_1 dest)) (||   (In_Adj_with_L `Base_1 dest) (inside `Base_1 dest))(-P- Action_State_dn (- actionid 1) Traceid)))
    (->(-P- Action_Post actionid Traceid) (&& (inside `EndEff_1 dest)))
    (->(|| (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid)) (&& (inside `EndEff_1 dest) (!!(-P- Base_1_Moving))))
- ))))
+ )))
+
+; first ro picks a wp
+(defun pick-first(actionid Traceid dest opId)
+ (alwf (&&
+   (-P- Action_Doer_ro actionid Traceid)
+   (->(-P- Action_Pre actionid Traceid) (&& (|| (In_Adj_with_L `EndEff_1 dest) (inside `EndEff_1 dest)) ))
+   (->(-P- Action_Post actionid Traceid) (&& (inside `EndEff_1 dest)))
+   (->(|| (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid)) (&& (inside `EndEff_1 dest) (!!(-P- Base_1_Moving))))
+ )))
 
 ;ro removes wp from pallet
 (defun removep(actionid Traceid pallet)
@@ -96,17 +101,13 @@
     (->(|| (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid)) (&& (inside `EndEff_1 pallet) (-P- remove-going-on))))))
 
 ;operator unscrews the part
-(defun unscrew (actionid traceid piece-pos opId)
-  (eval `(alwf (&&
-        (-P- Action_Doer_op actionid Traceid)
-        (->(-P- Action_Pre actionid Traceid) (&&(-P- Action_State_dn (- actionid 1) Traceid) (inside `operator_1_arm_area piece-pos)))
-        (->(-P- Action_Pre_L actionid Traceid) (inside `operator_1_arm_area piece-pos))
-        (->(-P- Action_Post actionid Traceid) (inside `operator_1_arm_area piece-pos))
-        (->(-P- Action_Post_L actionid Traceid) (inside `operator_1_arm_area piece-pos))
-        (->(|| (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid)) 
-          (&& (inside `operator_1_arm_area piece-pos)(inside `EndEff_1 piece-pos)(!!(-P- Base_1_Moving))))
-))))
-
+(defun unscrew(actionid traceid piece-pos opId)
+  (alwf (&&
+    (-P- Action_Doer_op actionid Traceid)
+    (->(-P- Action_Pre actionid Traceid) (&& (-P- Action_State_dn (- actionid 1) Traceid) (inside `operator_1_arm_area piece-pos)))
+    (->(-P- Action_Post actionid Traceid) (inside `operator_1_arm_area piece-pos))
+    (->(|| (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid)) (&& (inside `operator_1_arm_area piece-pos) (!!(-P- Base_1_Moving))))
+)))
 
 ;robot base is moving
 (defun base_move(actionid Traceid source dest)
@@ -123,13 +124,20 @@
  ;        (-P- Action_Doer_ro actionid Traceid)
    (->(-P- Action_Post actionid Traceid) (&& (inside `EndEff_1 dest))))))
 
-;ee holding the wp
-(defun ee_hold(actionid Traceid masteraction)
+(defun ee_hold(actionid Traceid masteraction preaction dest opId)
   (alwf (&&
    (-P- Action_Doer_ro actionid Traceid)
-   (->(-P- Action_Pre_L actionid Traceid)  (-P- Action_State_exe (- actionid 1) Traceid))
-   ;;it is running iff its master is running
-   (<->(|| (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid))  (|| (-P- Action_State_exe masteraction Traceid) (-P- Action_State_exrm masteraction Traceid))))))
+   (<->(-P- Action_Pre actionid Traceid)  (&&(inside `endeff_1 dest)(!!(Yesterday(-P- Action_State_dn preaction Traceid)))(-P- Action_State_dn preaction Traceid)))
+   (<->(-P- Action_Post actionid Traceid) (-P- Action_State_dn masteraction Traceid))
+   (->(||  (-P- Action_State_exe actionid Traceid) (-P- Action_State_exrm actionid Traceid) )(inside `endeff_1 dest))
+)))
+
+(defun ee_hold_moving(actionid Traceid masteraction preaction source opId)
+  (alwf (&&
+   (-P- Action_Doer_ro actionid Traceid)
+   (<->(-P- Action_Pre actionid Traceid)  (&&(inside `endeff_1 source)(!!(Yesterday(-P- Action_State_dn preaction Traceid)))(-P- Action_State_dn preaction Traceid)))
+   (<->(-P- Action_Post actionid Traceid) (-P- Action_State_dn masteraction Traceid))
+)))
 
 ;op send mobe signal
 (defun send_move_signal(actionid Traceid preaction)

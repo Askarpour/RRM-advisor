@@ -1,1 +1,0 @@
-(defconstant *RRMcall* (&& (ALwF (-P- RRM_1))(SomF (-P- Action_State_dn_6_1))(-A- i hazard_indexes (-> (-P- HAZARD_OCCURED i ) (-P- RRM_4)))))
