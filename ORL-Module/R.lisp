@@ -4,9 +4,9 @@
 (defvar ro_indexes_1 `(Base_1 Link1_1 Link2_1 EndEff_1))
 
 
-(defun Robot_Structure (roID)
+(defun Robot_Structure (ind)
  (alwf (&&
-  (-A- i `(Base_1 Link1_1 Link2_1 EndEff_1)  (&& (positioning_rules i) (moving i) (moving_gradually i)))
+  (-A- i ind  (&& (positioning_rules i) (moving i) (moving_gradually i)))
 	(|| (In_same_L `Link1_1 `Link2_1) (In_Adj_L `Link1_1 `Link2_1))
 	(|| (In_same_L `Link2_1 `EndEff_1) (In_Adj_L `Link2_1 `EndEff_1))
   (-P- BASE_1_IN_L_3)

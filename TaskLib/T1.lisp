@@ -21,7 +21,7 @@
    (mutually_exclusive2 action_indexes 1)
    (relativeProperties 1 1)
    (Operator_Body 1)
-   (Robot_Structure 1)
+   (Robot_Structure ro_indexes_1)
 ; List of actions 
    (pick-first 1 1 3 1)
    (ee_hold_moving 2 1 7 1 3 1)
